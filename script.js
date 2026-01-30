@@ -20,13 +20,20 @@ let allCards = [
   "&#127195;","&#127196;","&#127197;","&#127198;"
 ]
 
+let moves = 0;
+let time = 0;
+let timerStarted = false;
+
+
 let cardBack = allCards[0]
 allCards.shift();
+
+
 
 let gameDeck = [];
 for(let i = 0; i < 8; i++) {
   let lastIndex = allCards.length - 1;
-  r = randIndex(lastIndex)
+  let r = randIndex(lastIndex)
   gameDeck.push(allCards[r]);
   allCards.splice(r, 1);
 }
@@ -36,13 +43,64 @@ gameDeck = gameDeck.concat(gameDeck);
 console.log(gameDeck);
 
 
+
+let first = null;
+let busy = false;
+
 const handleClick = function(event) {
-  console.log(event.target.id);
-  let cardIndex = event.target.id.slice(5);
-  event.target.innerHTML = gameDeck[cardIndex];
+  if (busy) {
+    return;
+  }
+
+  let card = event.target
+
+  let index = card.id.slice(5);
+
+  card.innerHTML = gameDeck[index];
+
+  if (first === null) {
+    
+    if (timerStarted === false) {
+      timerStarted = true;
+
+      setInterval(function () {
+        time++;
+        document.querySelector("#time").innerHTML = time;
+      }, 1000);
+    }
+
+    first = card;
+    return;
+  }
+
+  moves++;
+  document.querySelector("#movecount").innerHTML = moves;
+
+
+  let firstIndex = first.id.slice(5);
+
+  if (gameDeck[firstIndex] !== gameDeck[index]) {
+    busy = true;
+
+    setTimeout(function () {
+      first.innerHTML = cardBack;
+      card.innerHTML = cardBack;
+
+      first = null;
+      busy = false;
+    }, 1000);
+
+  } else {
+    first = null;
+  }
+
 }
 
 for(let i = 0; i < 16; i++) {
   document.querySelector('#card-'+i).onclick = handleClick;
 }
 
+
+document.querySelector("#resetButton").onclick = function () {
+  location.reload();
+}
